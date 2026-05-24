@@ -228,38 +228,6 @@ All under `~/Library/Application Support/BadHabitBlocker/`:
 - `proxy.sock`: Unix domain socket for IPC
 - `logs/proxy.log`: proxy stdout/stderr
 
-### IPC protocol
-
-Newline-delimited JSON over the Unix socket. Requests carry an optional `id` the server echoes; push events have no `id`.
-
-```
-→ {"type":"set_enabled","id":"1","enabled":true}
-← {"id":"1","ok":true}
-
-→ {"type":"get_usage","id":"2"}
-← {"id":"2","ok":true,"result":{"usage":{"youtube.com":2841},
-       "bypassesUsed":[...],"activeGrants":[...]}}
-
-→ {"type":"update_rules","id":"3","rules":[...],"password":"..."}
-← {"id":"3","ok":true}
-
-→ {"type":"verify_password","id":"4","password":"..."}
-← {"id":"4","ok":true,"result":{"valid":true}}
-
-← {"type":"usage_updated","result":{...}}        # pushed every 1s
-```
-
-When the password gate is on, mutators (`set_enabled`, `update_rules`, `set_password_required`) need a valid password in the request or the proxy returns `{ok:false,error:"password required"}`.
-
-### A few design notes worth knowing
-
-- **Cert MITM.** Every HTTPS site is intercepted by default. The proxy holds a list of passthrough domains (Apple, banks, etc.) that get tunneled untouched so cert pinning still works.
-- **Active-only tracking.** The Swift app polls `CGEventSource.secondsSinceLastEventType` and `NSWorkspace.frontmostApplication` every 5s and pushes a single boolean over IPC. The Go tracker ignores activity when that boolean is false.
-- **Atomic writes.** Both sides write config/usage/secrets via temp-file + rename so a kill mid-write can't corrupt them.
-- **Supervised proxy.** The Swift app restarts the proxy on unexpected exit. Three crashes in 30 seconds disable the system proxy so you don't lose the internet.
-- **Network change.** `NWPathMonitor` triggers a re-apply of `networksetup` (debounced 1s) when you switch Wi-Fi ⇄ Ethernet ⇄ hotspot.
-- **Bypass endpoint.** Block page POSTs to `/.well-known/__bhb__/unlock` on whatever host it's served from. Same-origin avoids CORS / DNS / mixed-content quirks. The proxy intercepts this path on any host before rule matching.
-
 ### Testing
 
 `make test` runs the Go unit tests covering the rule matcher, the tracker (idle close, persistence, active-user gating), the bypass manager, password hashing/verify, passthrough matching, and the midnight scheduler.

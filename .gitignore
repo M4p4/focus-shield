@@ -1,0 +1,8 @@
+build/
+*.o
+.DS_Store
+.idea/
+.vscode/
+xcuserdata/
+*.xcuserstate
+DerivedData/

@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Blocked — Bad Habit Blocker</title>
+<style>
+  :root {
+    --bg: #fafaf9;
+    --fg: #1c1917;
+    --muted: #78716c;
+    --card: #ffffff;
+    --border: #e7e5e4;
+    --accent: #57534e;
+    --bar-bg: #f5f5f4;
+    --bar-fg: #57534e;
+    --btn-fg: #1c1917;
+    --btn-bg: #f5f5f4;
+    --btn-border: #d6d3d1;
+    --btn-disabled-fg: #a8a29e;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #18181b;
+      --fg: #f4f4f5;
+      --muted: #a1a1aa;
+      --card: #27272a;
+      --border: #3f3f46;
+      --accent: #a1a1aa;
+      --bar-bg: #3f3f46;
+      --bar-fg: #a1a1aa;
+      --btn-fg: #f4f4f5;
+      --btn-bg: #3f3f46;
+      --btn-border: #52525b;
+      --btn-disabled-fg: #71717a;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--fg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    -webkit-font-smoothing: antialiased;
+  }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2.5rem 2.25rem 2rem;
+    max-width: 460px;
+    width: 100%;
+  }
+  .brand {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    margin-bottom: 1.75rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .brand .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+  h1 {
+    font-size: 1.6rem;
+    font-weight: 600;
+    margin: 0 0 0.4rem;
+    letter-spacing: -0.01em;
+  }
+  .site {
+    color: var(--fg);
+    font-weight: 600;
+  }
+  .reason {
+    color: var(--muted);
+    margin: 0 0 1.5rem;
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+  .stats {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 1.75rem;
+    padding: 1rem 1.1rem;
+    background: var(--bar-bg);
+    border-radius: 10px;
+  }
+  .stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.875rem;
+  }
+  .stat-label {
+    color: var(--muted);
+  }
+  .stat-value {
+    font-variant-numeric: tabular-nums;
+    font-weight: 500;
+  }
+  .bar {
+    height: 6px;
+    background: rgba(120, 113, 108, 0.15);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .bar-fill {
+    height: 100%;
+    background: var(--bar-fg);
+    border-radius: 3px;
+    transition: width 0.3s ease;
+  }
+  .actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  button.unlock {
+    appearance: none;
+    border: 1px solid var(--btn-border);
+    background: var(--btn-bg);
+    color: var(--btn-fg);
+    font-size: 0.875rem;
+    font-weight: 500;
+    padding: 0.6rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s ease, transform 0.05s ease;
+    font-variant-numeric: tabular-nums;
+  }
+  button.unlock:hover:not(:disabled) {
+    background: rgba(120, 113, 108, 0.08);
+  }
+  button.unlock:active:not(:disabled) {
+    transform: translateY(1px);
+  }
+  button.unlock:disabled {
+    color: var(--btn-disabled-fg);
+    cursor: default;
+  }
+  input.pw {
+    appearance: none;
+    border: 1px solid var(--btn-border);
+    background: var(--btn-bg);
+    color: var(--btn-fg);
+    font-size: 0.875rem;
+    padding: 0.6rem 0.85rem;
+    border-radius: 8px;
+    font-family: inherit;
+    outline: none;
+  }
+  input.pw:focus {
+    border-color: var(--accent);
+  }
+  .helper {
+    color: var(--muted);
+    font-size: 0.78rem;
+    text-align: center;
+    margin: 0.25rem 0 0;
+  }
+  .helper.error {
+    color: #dc2626;
+  }
+  @media (prefers-color-scheme: dark) {
+    .helper.error { color: #f87171; }
+  }
+</style>
+</head>
+<body>
+  <main class="card">
+    <div class="brand"><span class="dot"></span>Bad Habit Blocker</div>
+    <h1>Take a breath.</h1>
+    <p class="reason"><span class="site">{{.Site}}</span> — {{.Reason}}</p>
+
+    {{if .ShowStats}}
+    <div class="stats">
+      {{if .ShowUsage}}
+      <div class="stat-row">
+        <span class="stat-label">Today</span>
+        <span class="stat-value">{{.UsageLabel}}</span>
+      </div>
+      <div class="bar"><div class="bar-fill" style="width: {{.UsagePercent}}%"></div></div>
+      {{end}}
+      {{if .ShowUnlocksIn}}
+      <div class="stat-row">
+        <span class="stat-label">Unlocks in</span>
+        <span class="stat-value">{{.UnlocksIn}}</span>
+      </div>
+      {{end}}
+    </div>
+    {{end}}
+
+    <div class="actions">
+      <button class="unlock" id="unlock-btn" data-rule="{{.RuleKey}}" data-requires-password="{{if .RequiresPassword}}1{{else}}0{{end}}" disabled>Unlock for 5 minutes (10s)</button>
+      {{if .RequiresPassword}}
+      <input class="pw" id="unlock-pw" type="password" placeholder="Password" autocomplete="current-password" style="display:none">
+      <p class="helper" id="unlock-help">Enter your password after the countdown to unlock anyway.</p>
+      {{else}}
+      <p class="helper" id="unlock-help">Click after the countdown to unlock anyway.</p>
+      {{end}}
+    </div>
+  </main>
+
+<script>
+(function() {
+  const btn = document.getElementById('unlock-btn');
+  const help = document.getElementById('unlock-help');
+  const pw = document.getElementById('unlock-pw');
+  const ruleKey = btn.dataset.rule;
+  const needsPw = btn.dataset.requiresPassword === '1';
+  let countdown = 10;
+  let ready = false;
+
+  const tick = () => {
+    countdown -= 1;
+    if (countdown <= 0) {
+      ready = true;
+      btn.disabled = false;
+      btn.textContent = 'Unlock for 5 minutes';
+      help.textContent = needsPw
+        ? 'Enter your password and confirm.'
+        : 'You can confirm now.';
+      if (pw) {
+        pw.style.display = 'block';
+        pw.focus();
+      }
+    } else {
+      btn.textContent = 'Unlock for 5 minutes (' + countdown + 's)';
+    }
+  };
+  const interval = setInterval(() => {
+    tick();
+    if (countdown <= 0) clearInterval(interval);
+  }, 1000);
+
+  const submit = async () => {
+    if (!ready) return;
+    const password = needsPw && pw ? pw.value : '';
+    if (needsPw && !password) {
+      help.textContent = 'Password is required.';
+      help.classList.add('error');
+      return;
+    }
+    btn.disabled = true;
+    if (pw) pw.disabled = true;
+    btn.textContent = 'Unlocking…';
+    help.textContent = '';
+    help.classList.remove('error');
+    try {
+      const body = {domain: ruleKey, minutes: 5};
+      if (password) body.password = password;
+      const res = await fetch('/.well-known/__bhb__/unlock', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(body)
+      });
+      if (!res.ok) {
+        let msg = 'HTTP ' + res.status;
+        try {
+          const data = await res.json();
+          if (data && data.error) msg = data.error;
+        } catch (_) { /* not JSON */ }
+        throw new Error(msg);
+      }
+      btn.textContent = 'Unlocked. Reloading…';
+      setTimeout(() => { window.location.reload(); }, 600);
+    } catch (err) {
+      btn.disabled = false;
+      if (pw) {
+        pw.disabled = false;
+        pw.value = '';
+        pw.focus();
+      }
+      btn.textContent = 'Unlock for 5 minutes';
+      help.textContent = 'Unlock failed: ' + err.message;
+      help.classList.add('error');
+    }
+  };
+
+  btn.addEventListener('click', submit);
+  if (pw) {
+    pw.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && ready) {
+        e.preventDefault();
+        submit();
+      }
+    });
+  }
+})();
+</script>
+</body>
+</html>

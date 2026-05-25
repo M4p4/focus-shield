@@ -4,6 +4,15 @@ import AppKit
 /// Installs and removes the local root CA in the macOS System keychain.
 /// Uses `osascript ... with administrator privileges` so the user sees a
 /// native admin password prompt instead of us asking for it ourselves.
+///
+/// macOS 26 (Tahoe) tightened `SecTrustSettingsSetTrustSettings`: it now
+/// rejects the trust-settings write whenever the originating GUI app isn't
+/// Apple- or Developer-ID-signed ("authorization denied since no user
+/// interaction was possible"). Ad-hoc `codesign --sign -` does NOT clear
+/// this check — verified empirically. So the install path goes through
+/// Terminal.app (Apple-signed and accepted by trustd) via a one-shot
+/// `.command` script. Uninstall doesn't touch trust settings and works
+/// directly through the osascript admin prompt.
 enum CertificateInstaller {
     static let caCommonName = "Focus Shield Root CA"
 
@@ -63,16 +72,10 @@ enum CertificateInstaller {
         return proc.terminationStatus == 0
     }
 
-    /// Run the trust-install command with an admin prompt.
-    ///
-    /// macOS 26 (Tahoe) tightened SecTrustSettingsSetTrustSettings: it now
-    /// rejects calls whose originating GUI app is unsigned with
-    /// "authorization denied since no user interaction was possible".
-    /// `swiftc`-built bundles like ours fall into that bucket. To work
-    /// around it we hand the trust step to Terminal.app (Apple-signed and
-    /// therefore accepted by trustd) by opening a `.command` file that
-    /// runs `sudo security add-trusted-cert`. Terminal prompts for the
-    /// sudo password; we poll the System keychain to detect completion.
+    /// Add the CA to the System keychain and mark it as a trusted root.
+    /// Trust settings can't be written from our (unsigned) bundle on macOS
+    /// 26, so we hand the step to Terminal.app via a `.command` script and
+    /// poll the keychain for completion.
     static func installAndTrust(caPath: URL) throws {
         guard FileManager.default.fileExists(atPath: caPath.path) else {
             throw CertError.caNotFound(caPath.path)
@@ -130,16 +133,10 @@ enum CertificateInstaller {
         return tmp
     }
 
-    /// Remove the cert from the keychain (admin prompt). Also wipes the
-    /// pre-rename "Bad Habit Blocker Root CA" so a single reset is enough
-    /// after upgrading from the old name. `|| true` keeps the command
-    /// successful when the legacy cert isn't present.
+    /// Remove the cert from the System keychain via an admin prompt.
     static func uninstallFromKeychain() throws {
-        let current = "/usr/bin/security delete-certificate -c " +
+        let shellCmd = "/usr/bin/security delete-certificate -c " +
             shellEscape(caCommonName) + " /Library/Keychains/System.keychain"
-        let legacy = "/usr/bin/security delete-certificate -c " +
-            shellEscape("Bad Habit Blocker Root CA") + " /Library/Keychains/System.keychain || true"
-        let shellCmd = "(\(current)) ; \(legacy)"
         try runAdmin(shell: shellCmd, prompt: "Focus Shield wants to remove its local certificate from the System keychain.")
     }
 

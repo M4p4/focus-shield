@@ -294,9 +294,16 @@ final class AppState: ObservableObject {
 
         // 4. Wipe the data dir. Done last so a failed keychain removal
         // doesn't leave us with secrets-already-deleted but cert-still-trusted.
+        // Also wipe the pre-rename "BadHabitBlocker" sibling so testers who
+        // upgraded from the old name end up in a fully clean state.
         let fm = FileManager.default
         if fm.fileExists(atPath: dataDir.path) {
             try fm.removeItem(at: dataDir)
+        }
+        let legacyDir = dataDir.deletingLastPathComponent()
+            .appendingPathComponent("BadHabitBlocker", isDirectory: true)
+        if fm.fileExists(atPath: legacyDir.path) {
+            try? fm.removeItem(at: legacyDir)
         }
         passwordRequired = false
         passwordIsSet = false

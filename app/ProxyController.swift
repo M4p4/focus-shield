@@ -92,6 +92,10 @@ final class ProxyController {
         if let existing = process, existing.isRunning {
             return
         }
+        // If a previous app run was force-quit, its child proxy can outlive
+        // us and keep port 8888 bound — every relaunch then fails with
+        // EADDRINUSE in a restart loop. Reap any such orphans first.
+        killOrphans()
         let proc = Process()
         proc.executableURL = binaryURL
         proc.arguments = ["-data-dir", dataDir.path]
@@ -113,6 +117,26 @@ final class ProxyController {
         self.process = proc
         self.logHandle = handle
         statusHandler?(.running(pid: proc.processIdentifier))
+    }
+
+    private func killOrphans() {
+        let pkill = Process()
+        pkill.executableURL = URL(fileURLWithPath: "/usr/bin/pkill")
+        pkill.arguments = ["-f", binaryURL.path]
+        pkill.standardOutput = FileHandle.nullDevice
+        pkill.standardError = FileHandle.nullDevice
+        do {
+            try pkill.run()
+            pkill.waitUntilExit()
+        } catch {
+            return
+        }
+        // pkill exits 0 if it killed something, 1 if no match. Only wait
+        // when something was actually terminated, so the kernel has time
+        // to release port 8888 before we try to bind it.
+        if pkill.terminationStatus == 0 {
+            Thread.sleep(forTimeInterval: 0.3)
+        }
     }
 
     private func handleExit(_ p: Process) {

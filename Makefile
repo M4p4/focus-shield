@@ -1,8 +1,8 @@
 .PHONY: proxy app run run-app clean tidy test
 
 BUILD_DIR := build
-PROXY_BIN := $(BUILD_DIR)/bhb-proxy
-APP_NAME  := BadHabitBlocker
+PROXY_BIN := $(BUILD_DIR)/focus-shield-proxy
+APP_NAME  := FocusShield
 APP_BUNDLE := $(BUILD_DIR)/$(APP_NAME).app
 APP_BIN := $(APP_BUNDLE)/Contents/MacOS/$(APP_NAME)
 APP_RES := $(APP_BUNDLE)/Contents/Resources
@@ -23,7 +23,7 @@ app: proxy
 	@echo "→ building $(APP_BUNDLE)"
 	mkdir -p $(APP_BUNDLE)/Contents/MacOS $(APP_RES)
 	cp app/Info.plist $(APP_BUNDLE)/Contents/Info.plist
-	cp $(PROXY_BIN) $(APP_RES)/bhb-proxy
+	cp $(PROXY_BIN) $(APP_RES)/focus-shield-proxy
 	swiftc \
 	  -sdk $(SDK) \
 	  -target arm64-apple-macosx13.0 \

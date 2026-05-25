@@ -11,7 +11,7 @@ import Network
 /// in a row when the user roams between Wi-Fi networks.
 final class NetworkChangeMonitor {
     private let monitor = NWPathMonitor()
-    private let queue = DispatchQueue(label: "bhb.network-monitor")
+    private let queue = DispatchQueue(label: "focusshield.network-monitor")
     private var debounceWork: DispatchWorkItem?
     private let debounce: TimeInterval = 1.0
 

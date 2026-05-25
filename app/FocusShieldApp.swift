@@ -15,7 +15,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 }
 
 @main
-struct BadHabitBlockerApp: App {
+struct FocusShieldApp: App {
     @StateObject private var state: AppState
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
 
@@ -28,14 +28,14 @@ struct BadHabitBlockerApp: App {
             // the system proxy still points at us. Clear it now so the
             // user can browse normally until they toggle ON again.
             if sys.isProxyConfigured(host: "127.0.0.1", port: 8888) {
-                NSLog("[BHB] orphan system proxy detected on startup — clearing")
+                NSLog("[FocusShield] orphan system proxy detected on startup — clearing")
                 try? sys.disable()
             }
 
             let appState = AppState(proxy: proxy, systemProxy: sys)
             _state = StateObject(wrappedValue: appState)
         } catch {
-            fatalError("BadHabitBlocker init failed: \(error)")
+            fatalError("FocusShield init failed: \(error)")
         }
     }
 
@@ -48,12 +48,12 @@ struct BadHabitBlockerApp: App {
         }
         .menuBarExtraStyle(.window)
 
-        Window("Bad Habit Blocker — Settings", id: "settings") {
+        Window("Focus Shield — Settings", id: "settings") {
             SettingsWindowView(state: state)
         }
         .defaultSize(width: 620, height: 440)
 
-        Window("Welcome — Bad Habit Blocker", id: "onboarding") {
+        Window("Welcome — Focus Shield", id: "onboarding") {
             OnboardingWindowView(state: state)
         }
         .defaultSize(width: 480, height: 360)

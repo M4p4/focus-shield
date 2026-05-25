@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Blocked — Bad Habit Blocker</title>
+<title>Blocked — Focus Shield</title>
 <style>
   :root {
     --bg: #fafaf9;
@@ -180,7 +180,7 @@
 </head>
 <body>
   <main class="card">
-    <div class="brand"><span class="dot"></span>Bad Habit Blocker</div>
+    <div class="brand"><span class="dot"></span>Focus Shield</div>
     <h1>Take a breath.</h1>
     <p class="reason"><span class="site">{{.Site}}</span> — {{.Reason}}</p>
 
@@ -261,7 +261,7 @@
     try {
       const body = {domain: ruleKey, minutes: 5};
       if (password) body.password = password;
-      const res = await fetch('/.well-known/__bhb__/unlock', {
+      const res = await fetch('/.well-known/__focusshield__/unlock', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify(body)

@@ -6,7 +6,7 @@ enum ProxyStatus: Equatable {
     case failed(String)
 }
 
-/// Spawns and supervises the bundled bhb-proxy Go binary. Logs to a file
+/// Spawns and supervises the bundled focus-shield-proxy Go binary. Logs to a file
 /// in the data dir. Supervises: if the proxy exits while we expected it
 /// to be running, restart it. After too many crashes in a short window,
 /// give up and surface a failure so the app can disable the system proxy
@@ -33,22 +33,22 @@ final class ProxyController {
     var onSupervisionFailure: ((String) -> Void)?
 
     init() throws {
-        let bundled = Bundle.main.url(forResource: "bhb-proxy", withExtension: nil)
+        let bundled = Bundle.main.url(forResource: "focus-shield-proxy", withExtension: nil)
         let repoLocal = URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
-            .appendingPathComponent("build/bhb-proxy")
+            .appendingPathComponent("build/focus-shield-proxy")
         if let bundled, FileManager.default.isExecutableFile(atPath: bundled.path) {
             self.binaryURL = bundled
         } else if FileManager.default.isExecutableFile(atPath: repoLocal.path) {
             self.binaryURL = repoLocal
         } else {
-            throw NSError(domain: "BHB", code: 1, userInfo: [
-                NSLocalizedDescriptionKey: "bhb-proxy binary not found in app bundle or build/"
+            throw NSError(domain: "FocusShield", code: 1, userInfo: [
+                NSLocalizedDescriptionKey: "focus-shield-proxy binary not found in app bundle or build/"
             ])
         }
 
         let home = FileManager.default.homeDirectoryForCurrentUser
         self.dataDir = home
-            .appendingPathComponent("Library/Application Support/BadHabitBlocker", isDirectory: true)
+            .appendingPathComponent("Library/Application Support/FocusShield", isDirectory: true)
         let logsDir = dataDir.appendingPathComponent("logs", isDirectory: true)
         try FileManager.default.createDirectory(at: logsDir, withIntermediateDirectories: true)
         self.logURL = logsDir.appendingPathComponent("proxy.log")
@@ -98,7 +98,7 @@ final class ProxyController {
 
         let handle = try FileHandle(forWritingTo: logURL)
         handle.seekToEndOfFile()
-        let header = "\n----- bhb-proxy launched at \(Date()) -----\n"
+        let header = "\n----- focus-shield-proxy launched at \(Date()) -----\n"
         if let data = header.data(using: .utf8) { handle.write(data) }
         proc.standardOutput = handle
         proc.standardError = handle

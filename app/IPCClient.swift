@@ -56,7 +56,7 @@ final class IPCClient {
     private let socketPath: String
     private var fd: Int32 = -1
     private var readSource: DispatchSourceRead?
-    private let writeQueue = DispatchQueue(label: "bhb.ipc.write")
+    private let writeQueue = DispatchQueue(label: "focusshield.ipc.write")
     private var inbox = Data()
     private let pendingLock = NSLock()
     private var pending: [String: CheckedContinuation<Message, Error>] = [:]

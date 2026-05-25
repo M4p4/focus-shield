@@ -85,7 +85,7 @@ struct SecurityTab: View {
             .toggleStyle(.switch)
             .padding(.bottom, 4)
 
-            Text("When on, your password is needed to disable Bad Habit Blocker, edit rules, and use the “unlock anyway” button on the block page.")
+            Text("When on, your password is needed to disable Focus Shield, edit rules, and use the “unlock anyway” button on the block page.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
 
@@ -280,7 +280,7 @@ struct AboutTab: View {
                     .font(.system(size: 36))
                     .foregroundStyle(.tint)
                 VStack(alignment: .leading) {
-                    Text("Bad Habit Blocker").font(.title2).bold()
+                    Text("Focus Shield").font(.title2).bold()
                     Text("Version \(version)").font(.caption).foregroundStyle(.secondary)
                 }
             }
@@ -295,7 +295,7 @@ struct AboutTab: View {
 
             Text("Reset")
                 .font(.headline)
-            Text("Stops Bad Habit Blocker, removes the local certificate from your keychain, disables Launch at Login, clears system proxy settings, and deletes config / usage / password. The app stays installed — drag it to the Trash to remove the binary.")
+            Text("Stops Focus Shield, removes the local certificate from your keychain, disables Launch at Login, clears system proxy settings, and deletes config / usage / password. The app stays installed — drag it to the Trash to remove the binary.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)

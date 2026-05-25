@@ -79,7 +79,7 @@ func main() {
 	sigCh := make(chan os.Signal, 1)
 	signal.Notify(sigCh, syscall.SIGINT, syscall.SIGTERM)
 
-	log.Printf("bhb-proxy listening on %s (data dir: %s)", *addr, *dataDir)
+	log.Printf("focus-shield-proxy listening on %s (data dir: %s)", *addr, *dataDir)
 	log.Printf("CA at %s — trust it via: sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain %s",
 		*dataDir, filepath.Join(*dataDir, "ca.pem"))
 
@@ -111,7 +111,7 @@ func main() {
 func defaultDataDir() string {
 	home, err := os.UserHomeDir()
 	if err != nil {
-		return "./bhb-data"
+		return "./focus-shield-data"
 	}
-	return filepath.Join(home, "Library", "Application Support", "BadHabitBlocker")
+	return filepath.Join(home, "Library", "Application Support", "FocusShield")
 }

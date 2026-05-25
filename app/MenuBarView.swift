@@ -50,7 +50,7 @@ struct MenuBarView: View {
                     NSApp.activate(ignoringOtherApps: true)
                     openWindow(id: "settings")
                 }
-                MenuRow(label: "Quit Bad Habit Blocker", shortcut: "⌘Q") {
+                MenuRow(label: "Quit Focus Shield", shortcut: "⌘Q") {
                     handleQuit()
                 }
             }
@@ -79,7 +79,7 @@ struct MenuBarView: View {
                 Circle()
                     .fill(statusColor)
                     .frame(width: 8, height: 8)
-                Text("Bad Habit Blocker")
+                Text("Focus Shield")
                     .font(.system(size: 13, weight: .semibold))
                 Spacer()
                 Toggle("", isOn: Binding(
@@ -207,7 +207,7 @@ struct MenuBarView: View {
 
     private func promptText(for action: PendingAction) -> String {
         switch action {
-        case .disable: return "Enter your password to turn off Bad Habit Blocker."
+        case .disable: return "Enter your password to turn off Focus Shield."
         case .quit:    return "Enter your password to quit."
         }
     }

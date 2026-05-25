@@ -41,8 +41,8 @@ func loadOrCreateCA(dir string) (tls.Certificate, error) {
 	tmpl := &x509.Certificate{
 		SerialNumber: serial,
 		Subject: pkix.Name{
-			CommonName:   "Bad Habit Blocker Root CA",
-			Organization: []string{"Bad Habit Blocker"},
+			CommonName:   "Focus Shield Root CA",
+			Organization: []string{"Focus Shield"},
 		},
 		NotBefore:             time.Now().Add(-1 * time.Hour),
 		NotAfter:              time.Now().AddDate(10, 0, 0),

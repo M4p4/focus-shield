@@ -28,7 +28,7 @@ func installCA(ca tls.Certificate) {
 // that a synthetic hostname would introduce. The /.well-known/ prefix
 // (RFC 8615) keeps us in a namespace conventionally reserved for this kind
 // of thing.
-const internalPath = "/.well-known/__bhb__/unlock"
+const internalPath = "/.well-known/__focusshield__/unlock"
 
 // newProxy builds the MITM proxy with the rules engine, tracker, bypass
 // manager and auth wired in. ipc is consulted for the password-gate

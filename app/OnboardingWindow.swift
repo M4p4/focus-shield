@@ -24,7 +24,7 @@ struct OnboardingWindowView: View {
                 Image(systemName: "shield.lefthalf.filled")
                     .font(.system(size: 28))
                     .foregroundStyle(.tint)
-                Text("Bad Habit Blocker")
+                Text("Focus Shield")
                     .font(.title2).bold()
                 Spacer()
             }
@@ -82,7 +82,7 @@ struct OnboardingWindowView: View {
             Label("You're all set.", systemImage: "checkmark.circle.fill")
                 .foregroundStyle(.green)
                 .font(.title3)
-            Text("Click the shield in the menubar to flip Bad Habit Blocker ON. Open Settings to add the sites you want to limit.")
+            Text("Click the shield in the menubar to flip Focus Shield ON. Open Settings to add the sites you want to limit.")
                 .font(.callout).foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
         }

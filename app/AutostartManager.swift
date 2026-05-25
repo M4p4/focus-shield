@@ -39,7 +39,7 @@ enum AutostartManager {
 
     static func setEnabled(_ on: Bool) -> Result<AutostartStatus, Error> {
         guard #available(macOS 13.0, *) else {
-            return .failure(NSError(domain: "BHB", code: 0, userInfo: [
+            return .failure(NSError(domain: "FocusShield", code: 0, userInfo: [
                 NSLocalizedDescriptionKey: "Requires macOS 13 or later."
             ]))
         }

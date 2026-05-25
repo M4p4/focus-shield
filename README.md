@@ -1,4 +1,4 @@
-# Bad Habit Blocker
+# Focus Shield
 
 A macOS menubar app that throttles or blocks distracting websites by routing browser traffic through a local HTTPS proxy. Personal-use, no cloud, no sync.
 
@@ -19,9 +19,9 @@ No distribution yet. Build it from source:
 
 ```sh
 git clone <repo>
-cd bad-habit-blocker
+cd focus-shield
 make app
-open build/BadHabitBlocker.app
+open build/FocusShield.app
 ```
 
 The first launch opens an onboarding window that walks you through installing the local root certificate (one admin prompt). After that the shield icon lives in the menubar.
@@ -121,105 +121,16 @@ Make sure the proxy is actually intercepting: System Settings → Network → Wi
 About tab → "Open logs folder". Or:
 
 ```
-~/Library/Application Support/BadHabitBlocker/logs/proxy.log
+~/Library/Application Support/FocusShield/logs/proxy.log
 ```
 
 ---
 
-## For developers
-
-### Architecture
-
-Two processes talking over a Unix socket:
-
-```
-┌──────────────────────────────┐
-│  Swift menubar app           │
-│  - MenuBarExtra + Settings   │
-│  - Spawns + supervises proxy │
-│  - networksetup wrapper      │
-│  - User activity polling     │
-└──────────┬───────────────────┘
-           │ JSON-line over Unix socket
-           ▼
-┌──────────────────────────────┐
-│  Go proxy (goproxy)          │
-│  - HTTPS MITM                │
-│  - Rules engine + tracker    │
-│  - Block page + bypass       │
-│  - Argon2id password store   │
-│  - Midnight reset scheduler  │
-└──────────────────────────────┘
-```
-
-The Swift app handles UI, system integration, and lifecycle. The Go proxy handles network interception and all per-request decisions. Each is the canonical writer of its own files; the IPC layer is for live updates.
-
-### Tech stack
-
-- Swift 6 / SwiftUI / AppKit (menubar, settings, onboarding)
-- Go 1.23 with [elazarl/goproxy](https://github.com/elazarl/goproxy) for the MITM core
-- `golang.org/x/crypto/argon2` for password hashing
-- `ServiceManagement.SMAppService` for autostart
-- `Network.NWPathMonitor` for network-change detection
-- `osascript` admin prompts for keychain trust install/uninstall
-
-No code signing required for personal use (right-click → Open clears Gatekeeper once).
-
-### Repo layout
-
-```
-bad-habit-blocker/
-├── app/                           # Swift app
-│   ├── BadHabitBlockerApp.swift   # @main, scenes, AppDelegate
-│   ├── AppState.swift             # @MainActor ObservableObject
-│   ├── MenuBarView.swift          # popover
-│   ├── SettingsWindow.swift       # Sites / Security / General / About tabs
-│   ├── OnboardingWindow.swift     # first-run wizard
-│   ├── PasswordPrompt.swift       # reusable sheet
-│   ├── ProxyController.swift      # spawns + supervises bhb-proxy
-│   ├── SystemProxyManager.swift   # networksetup wrapper
-│   ├── CertificateInstaller.swift # keychain trust via osascript
-│   ├── AutostartManager.swift     # SMAppService
-│   ├── NetworkChangeMonitor.swift # NWPathMonitor + debounce
-│   ├── UserActivityMonitor.swift  # input idle + frontmost app
-│   ├── IPCClient.swift            # Unix socket client
-│   ├── ConfigStore.swift          # config.json read/write
-│   └── Info.plist
-├── proxy/                         # Go proxy
-│   ├── main.go                    # entrypoint, shutdown sequence
-│   ├── proxy.go                   # goproxy routing
-│   ├── ca.go                      # root CA generation
-│   ├── rules.go                   # config + matcher
-│   ├── tracker.go                 # idle-aware session tracking
-│   ├── scheduler.go               # midnight reset goroutine
-│   ├── bypass.go                  # temporary unlocks
-│   ├── auth.go                    # Argon2id
-│   ├── ipc.go                     # Unix socket server
-│   ├── passthrough.go             # cert-pinned host list
-│   ├── block_page.go              # template render
-│   └── block_page.html            # embedded HTML
-├── Makefile
-├── README.md
-└── SPECS.md
-```
-
-### Build and dev workflow
-
-```sh
-make proxy    # → build/bhb-proxy
-make app      # → build/BadHabitBlocker.app (includes proxy in Resources)
-make run      # run the proxy standalone with verbose logging
-make run-app  # build and launch the app
-make test     # Go tests
-```
-
-The Makefile uses `swiftc` directly to compile the app (no `.xcodeproj`). To iterate quickly, run `make app && open build/BadHabitBlocker.app` after each change.
-
-The Swift app looks for the proxy binary first in `Contents/Resources/bhb-proxy`, then falls back to `./build/bhb-proxy` in the current working directory. That fallback lets you `make proxy && open build/BadHabitBlocker.app` without re-bundling on every change.
+## For devs
 
 ### Data files
 
-All under `~/Library/Application Support/BadHabitBlocker/`:
+All under `~/Library/Application Support/FocusShield/`:
 
 - `ca.pem` / `ca.key`: local root CA (generated on first run)
 - `config.json`: rules, enabled flag, passwordRequired flag

@@ -1,4 +1,4 @@
-module github.com/mapa/bad-habit-blocker/proxy
+module github.com/mapa/focus-shield/proxy
 
 go 1.25.0
 

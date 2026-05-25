@@ -4,7 +4,7 @@ import Foundation
 /// Uses `osascript ... with administrator privileges` so the user sees a
 /// native admin password prompt instead of us asking for it ourselves.
 enum CertificateInstaller {
-    static let caCommonName = "Bad Habit Blocker Root CA"
+    static let caCommonName = "Focus Shield Root CA"
 
     enum CertError: LocalizedError {
         case caNotFound(String)
@@ -70,14 +70,14 @@ enum CertificateInstaller {
         // The shell command security expects, escaped for AppleScript.
         let shellCmd = "/usr/bin/security add-trusted-cert -d -r trustRoot " +
             "-k /Library/Keychains/System.keychain " + shellEscape(caPath.path)
-        try runAdmin(shell: shellCmd, prompt: "Bad Habit Blocker wants to install its local certificate so it can intercept HTTPS for the blocked sites.")
+        try runAdmin(shell: shellCmd, prompt: "Focus Shield wants to install its local certificate so it can intercept HTTPS for the blocked sites.")
     }
 
     /// Remove the cert from the keychain (admin prompt).
     static func uninstallFromKeychain() throws {
         let shellCmd = "/usr/bin/security delete-certificate -c " +
             shellEscape(caCommonName) + " /Library/Keychains/System.keychain"
-        try runAdmin(shell: shellCmd, prompt: "Bad Habit Blocker wants to remove its local certificate from the System keychain.")
+        try runAdmin(shell: shellCmd, prompt: "Focus Shield wants to remove its local certificate from the System keychain.")
     }
 
     // MARK: -
